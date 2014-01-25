@@ -1,7 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class GameController : MonoBehaviour {
+public class GameController : MonoBehaviour 
+{
+    public static GameController Instance { get { return instance; } }
+    static GameController instance;
+    
 
     public Camera secondCamera;
 	public Rigidbody2D characterRigidbody;
@@ -9,19 +13,32 @@ public class GameController : MonoBehaviour {
     public RenderTexture cameraTexture;
     public Renderer secondCameraRenderer;
 
+    //GUI
+    public GUISkin emptyGUISkin;
+    public Texture2D gameOverTexture;
+    public Texture2D restartButtonTexture;
+    Rect screenRect;
+
     Plane worldPlane;
 
     GameObject[] targets;
     SecondCameraController secondCameraController;
     Texture2D shutterTexture;
+    Texture2D blackTexture;
+    
 
     bool isShotAvailable = false;
 
     float lastShutterTime = 0.0f;
     float shutterTime = 0.2f;
 
+    bool isGameOver = false;
+    float gameOverTime = 0.0f;
+
 	// Use this for initialization
 	void Start () {
+        instance = this;
+
         worldPlane = new Plane(-Vector3.forward, 0);
 
         targets = GameObject.FindGameObjectsWithTag("Target");
@@ -34,7 +51,11 @@ public class GameController : MonoBehaviour {
         secondCameraRenderer.material.mainTexture = cameraTexture;
 
         shutterTexture = new Texture2D(1, 1);
-        
+        blackTexture = new Texture2D(1, 1);
+        blackTexture.SetPixel(0, 0, Color.black);
+        blackTexture.Apply();
+
+        screenRect = new Rect(0, 0, Screen.width, Screen.height);
 	}
 	
 	// Update is called once per frame
@@ -52,21 +73,37 @@ public class GameController : MonoBehaviour {
 
     void OnGUI()
     {
-
-        GUILayout.BeginHorizontal();
-        System.Array modes = System.Enum.GetValues(typeof(SecondCameraController.CameraMode));
-        foreach (SecondCameraController.CameraMode mode in modes)
-            if (GUILayout.Button(System.Enum.GetName(typeof(SecondCameraController.CameraMode), mode)))
-                secondCameraController.CurrentMode = mode;
-        GUILayout.EndHorizontal();
-
-        //Draw Shutter Flash
-        if(Time.time <= lastShutterTime + shutterTime)
+        if (!isGameOver)
         {
-            shutterTexture.SetPixel(0, 0, new Color(1, 1, 1, Mathf.Lerp(0.75f, 0f, Mathf.InverseLerp(lastShutterTime, lastShutterTime + shutterTime, Time.time))));
-            shutterTexture.Apply();
-            Rect screenRect = new Rect(0, 0, Screen.width, Screen.height);
-            GUI.DrawTexture(screenRect, shutterTexture);
+            GUILayout.BeginHorizontal();
+            System.Array modes = System.Enum.GetValues(typeof(SecondCameraController.CameraMode));
+            foreach (SecondCameraController.CameraMode mode in modes)
+                if (GUILayout.Button(System.Enum.GetName(typeof(SecondCameraController.CameraMode), mode)))
+                    secondCameraController.CurrentMode = mode;
+            GUILayout.EndHorizontal();
+
+            //Draw Shutter Flash
+            if (Time.time <= lastShutterTime + shutterTime)
+            {
+                shutterTexture.SetPixel(0, 0, new Color(1, 1, 1, Mathf.Lerp(0.75f, 0f, Mathf.InverseLerp(lastShutterTime, lastShutterTime + shutterTime, Time.time))));
+                shutterTexture.Apply();
+                Rect screenRect = new Rect(0, 0, Screen.width, Screen.height);
+                GUI.DrawTexture(screenRect, shutterTexture);
+            }
+        }
+        else
+        {
+            GUI.skin = emptyGUISkin;
+            GUI.color = Color.Lerp(new Color(1, 1, 1, 0), Color.white, Mathf.InverseLerp(gameOverTime, gameOverTime + 2.0f, Time.time));
+            GUI.DrawTexture(screenRect, blackTexture);
+
+            GUI.DrawTexture(new Rect(Screen.width / 2 - gameOverTexture.width / 2, Screen.height / 2 - gameOverTexture.height, gameOverTexture.width, gameOverTexture.height), gameOverTexture);
+
+            if(GUI.Button(new Rect(Screen.width / 2 - restartButtonTexture.width / 2, Screen.height / 2, restartButtonTexture.width, restartButtonTexture.height), restartButtonTexture))
+            {
+                Application.LoadLevel(Application.loadedLevel);
+            }
+
         }
     }
 
@@ -81,21 +118,22 @@ public class GameController : MonoBehaviour {
 
             //secondCamera.backgroundColor = Color.gray;
             
-                    if(Input.GetMouseButtonDown(0))
+            if(Input.GetMouseButtonDown(0))
+            {
+                foreach (GameObject targetGO in targets)
+                    if (GeometryUtility.TestPlanesAABB(GeometryUtility.CalculateFrustumPlanes(secondCamera), targetGO.GetComponentInChildren<Renderer>().bounds))
                     {
-                        foreach (GameObject targetGO in targets)
-                            if (GeometryUtility.TestPlanesAABB(GeometryUtility.CalculateFrustumPlanes(secondCamera), targetGO.renderer.bounds))
-                            {
-                                Target target = targetGO.GetComponent<Target>();
-                                if (target)
-                                    Shot(target.GetComponent<Target>());
-                            }
+                        Target target = targetGO.GetComponent<Target>();
+                        if (target)
+                            Shot(target.GetComponent<Target>());
                     }
+            }
         }
     }
 
     void Shot(Target target)
     {
+        Debug.Log("Shot");
         lastShutterTime = Time.time;
         switch(secondCameraController.CurrentMode)
         {
@@ -129,12 +167,34 @@ public class GameController : MonoBehaviour {
 
                 }
                 break;
+            case SecondCameraController.CameraMode.Blur:
+                if(target.OnBlured())
+                {
+
+                }
+                break;
+            case SecondCameraController.CameraMode.Mirror:
+                if(target.OnMirrored())
+                {
+
+                }
+                break;
         }
         secondCameraController.CurrentMode = SecondCameraController.CameraMode.None;
+    }
+
+    void OnGameOver()
+    {
+        if (!isGameOver)
+        {
+            isGameOver = true;
+            gameOverTime = Time.time;
+        }
     }
 
     public static void OnPlayerHarmed()
     {
         Debug.Log("Player Harmed");
+        Instance.OnGameOver();
     }
 }
