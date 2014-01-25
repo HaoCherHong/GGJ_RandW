@@ -22,7 +22,7 @@ public class GameController : MonoBehaviour
 
     Plane worldPlane;
 
-    GameObject[] targets;
+    public GameObject[] targets;
     SecondCameraController secondCameraController;
     Texture2D shutterTexture;
     Texture2D blackTexture;
@@ -122,12 +122,14 @@ public class GameController : MonoBehaviour
             if(Input.GetMouseButtonDown(0))
             {
                 foreach (GameObject targetGO in targets)
+                {
                     if (GeometryUtility.TestPlanesAABB(GeometryUtility.CalculateFrustumPlanes(secondCamera), targetGO.GetComponentInChildren<Renderer>().bounds))
                     {
                         Target target = targetGO.GetComponent<Target>();
                         if (target)
                             Shot(target.GetComponent<Target>());
                     }
+                }
             }
         }
     }
