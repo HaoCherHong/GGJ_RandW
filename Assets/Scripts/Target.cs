@@ -9,9 +9,11 @@ public class Target : MonoBehaviour
         ScaledUp,
         ScaledDown
     }
-    
+
+    public int correctFilterId = -1;
     public bool isScalable = true;
     public bool isHarmful = true;
+    public bool isMirrorable = true;
 
     public Vector3 upScale = new Vector3(2f,2f,2f);
     public Vector3 downScale = new Vector3(0.5f, 0.5f, 0.5f);
@@ -26,7 +28,14 @@ public class Target : MonoBehaviour
 
     public virtual bool OnFiltered(int filterId)
     {
-        return false;
+        Debug.Log("On Filtererd");
+        bool succeeded = filterId == correctFilterId;
+        if (succeeded)
+        {
+            isHarmful = false;
+            renderer.enabled = false;
+        }
+        return succeeded;
     }
     public virtual bool OnBlured()
     {
@@ -42,7 +51,16 @@ public class Target : MonoBehaviour
     }
     public virtual bool OnMirrored()
     {
-        return false;
+        Debug.Log("On Mirrored");
+        if (isMirrorable)
+        {
+            Vector3 newScale = transform.localScale;
+            newScale.x *= -1;
+            transform.localScale = newScale;
+            return true;
+        }
+        else
+            return false;
     }
 
     public virtual bool OnScaledUp()
