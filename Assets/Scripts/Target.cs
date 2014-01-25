@@ -104,6 +104,7 @@ public class Target : MonoBehaviour
 
     public virtual bool OnScaledDown()
     {
+        Debug.Log("Scaled Down");
         if (isScalable)
         {
             switch (scaleState)
