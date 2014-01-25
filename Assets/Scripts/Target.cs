@@ -26,6 +26,22 @@ public class Target : MonoBehaviour
         normalScale = transform.localScale;
     }
 
+    void OnCollisionEnter2D(Collision2D collision)
+    {
+        Debug.Log("OnCollisionEnter2D");
+        if (collision.gameObject.tag == "Colored Background 0")
+            correctFilterId = 0;
+        if (collision.gameObject.tag == "Colored Background 1")
+            correctFilterId = 1;
+        if (collision.gameObject.tag == "Colored Background 2")
+            correctFilterId = 2;
+    }
+    void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.gameObject.tag.Contains("Colored Background"))
+            correctFilterId = -1;
+    }
+
     public virtual bool OnFiltered(int filterId)
     {
         Debug.Log("On Filtererd");

@@ -26,6 +26,7 @@ public class SecondCameraController : MonoBehaviour {
     }
 
     public float sizeScale = 2.0f;
+    public GameCharacterController characterController;
     public Renderer targetRenderer;
 
     CameraMode currentMode;
@@ -56,7 +57,13 @@ public class SecondCameraController : MonoBehaviour {
     void OnModeChanged()
     {
         Debug.Log(currentMode.ToString());
-        GetComponent<Blur>().enabled = CurrentMode == CameraMode.Blur;
+        if (CurrentMode == CameraMode.Blur)
+        {
+            GetComponent<Blur>().enabled = true;
+            characterController.SetState(GameCharacterController.CharacterState.Normal);
+        }
+        else
+            GetComponent<Blur>().enabled = false;
 
         bool filterMode = CurrentMode >= CameraMode.Filter1 && CurrentMode <= CameraMode.Filter3;
         ColorCorrectionCurves curves = GetComponent<ColorCorrectionCurves>();
@@ -67,6 +74,8 @@ public class SecondCameraController : MonoBehaviour {
             curves.greenChannel = CurrentMode == CameraMode.Filter2 ? normalCurve : zeroCurve;
             curves.blueChannel = CurrentMode == CameraMode.Filter3 ? normalCurve : zeroCurve;
             curves.UpdateParameters();
+
+            characterController.SetState(GameCharacterController.CharacterState.Normal);
         }
         curves.enabled = filterMode;
 
@@ -77,6 +86,8 @@ public class SecondCameraController : MonoBehaviour {
             fishEye.strengthX = CurrentMode == CameraMode.ScaleUp ? 1f : -1f;
             fishEye.strengthY = CurrentMode == CameraMode.ScaleUp ? 1f : -1f;
             camera.orthographicSize = CurrentMode == CameraMode.ScaleUp ? cameraOrthographicSize / sizeScale : cameraOrthographicSize * sizeScale;
+
+            characterController.SetState(CurrentMode == CameraMode.ScaleUp ? GameCharacterController.CharacterState.ScaleUp : GameCharacterController.CharacterState.ScaleDown);
         }
         else
             camera.orthographicSize = cameraOrthographicSize;
@@ -86,6 +97,7 @@ public class SecondCameraController : MonoBehaviour {
         if(CurrentMode == CameraMode.Mirror)
         {
             newScale.x = -Mathf.Abs(newScale.x);
+            characterController.SetState(GameCharacterController.CharacterState.Normal);
         }
         else
         {

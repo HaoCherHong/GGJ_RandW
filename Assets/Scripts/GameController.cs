@@ -8,6 +8,7 @@ public class GameController : MonoBehaviour
     
 
     public Camera secondCamera;
+    public GameCharacterController characterController;
 	public Rigidbody2D characterRigidbody;
 	public float speed = 1.0f;
     public RenderTexture cameraTexture;
@@ -181,6 +182,7 @@ public class GameController : MonoBehaviour
                 break;
         }
         secondCameraController.CurrentMode = SecondCameraController.CameraMode.None;
+        characterController.Shot();
     }
 
     void OnGameOver()
