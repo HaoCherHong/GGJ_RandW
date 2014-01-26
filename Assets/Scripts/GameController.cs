@@ -14,6 +14,8 @@ public class GameController : MonoBehaviour
 	public float speed = 1.0f;
     public RenderTexture cameraTexture;
     public Renderer secondCameraRenderer;
+    public float levelEnd = 1000f;
+    public int nextLevel = 1;
 
     //GUI
     public GUISkin emptyGUISkin;
@@ -39,6 +41,7 @@ public class GameController : MonoBehaviour
 
     bool isGamePaused = false;
     bool isGameOver = false;
+    bool returnToStart = false;
     float gameOverTime = 0.0f;
 
 	// Use this for initialization
@@ -73,6 +76,13 @@ public class GameController : MonoBehaviour
         if (!isGamePaused)
         {
             characterRigidbody.transform.Translate(Vector2.right * speed * Time.deltaTime, Space.World);
+            if (characterRigidbody.transform.position.x >= levelEnd)
+            {
+                if (nextLevel >= 0)
+                    Application.LoadLevel(nextLevel);
+                else
+                    OnGameOver(true);
+            }
         }
         Update2ndCamera(); 
 	}
@@ -113,7 +123,10 @@ public class GameController : MonoBehaviour
 
             if(GUI.Button(new Rect(Screen.width / 2 - restartButtonTexture.width / 2, Screen.height / 2, restartButtonTexture.width, restartButtonTexture.height), restartButtonTexture))
             {
-                Application.LoadLevel(Application.loadedLevel);
+                if(returnToStart)
+                    Application.LoadLevel(0);
+                else
+                    Application.LoadLevel(Application.loadedLevel);
             }
 
         }
@@ -241,10 +254,16 @@ public class GameController : MonoBehaviour
         
     }
 
-    void OnGameOver()
+    public void OnGameOver()
+    {
+        OnGameOver(false);
+    }
+
+    public void OnGameOver(bool returnToStart)
     {
         if (!isGameOver)
         {
+            this.returnToStart = returnToStart;
             isGameOver = true;
             gameOverTime = Time.time;
         }

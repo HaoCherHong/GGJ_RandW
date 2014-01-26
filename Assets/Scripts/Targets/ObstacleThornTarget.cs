@@ -1,12 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class ThornTarget : Target {
+public class ObstacleThornTarget : Target
+{
 
     public override bool OnMirrored()
     {
         base.OnMirrored();
-        isHarmful = transform.localScale.x > 0;
+        isHarmful = (transform.localScale.x > 0) || (scaleState != ScaleState.ScaledDown);
         return true;
     }
 }

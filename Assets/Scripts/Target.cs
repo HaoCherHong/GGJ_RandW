@@ -92,12 +92,13 @@ public class Target : MonoBehaviour
     }
     public virtual bool OnMirrored()
     {
-        Debug.Log("On Mirrored");
+        
         if (isMirrorable)
         {
             Vector3 newScale = transform.localScale;
             newScale.x *= -1;
             transform.localScale = newScale;
+            Debug.Log("On Mirrored");
             return true;
         }
         else

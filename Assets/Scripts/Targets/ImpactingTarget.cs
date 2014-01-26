@@ -4,7 +4,7 @@ using System.Collections;
 public class ImpactingTarget : Target {
 
     public Vector3 translation = new Vector3(-1, 0, 0);
-    bool movingStarted = false;
+    public bool movingStarted = false;
 
     void Update()
     {
