@@ -24,10 +24,19 @@ public class SecondCameraController : MonoBehaviour {
             OnModeChanged();
         }
     }
+    public Bounds DetectBounds
+    {
+        get
+        {
+            return new Bounds(new Vector3(transform.position.x, transform.position.y, 0),
+                new Vector3(detectArea.x, detectArea.y, 0.5f));
+        }
+    }
 
     public float sizeScale = 2.0f;
     public GameCharacterController characterController;
     public Renderer targetRenderer;
+    public Vector2 detectArea;
 
     CameraMode currentMode;
 
@@ -52,6 +61,12 @@ public class SecondCameraController : MonoBehaviour {
     void OnGUI()
     {
         
+    }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireCube(DetectBounds.center, DetectBounds.size);
     }
 
     void OnModeChanged()
@@ -104,5 +119,7 @@ public class SecondCameraController : MonoBehaviour {
             newScale.x = Mathf.Abs(newScale.x);
         }
         targetRenderer.transform.localScale = newScale;
+
+        GetComponent<MotionBlur>().enabled = CurrentMode == CameraMode.ShutterSlow;
     }
 }
