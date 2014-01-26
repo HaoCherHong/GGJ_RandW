@@ -3,6 +3,8 @@ using System.Collections;
 
 public class EnddingTrigger : MonoBehaviour {
 
+    public int nextLevel = -1;
+
 	// Use this for initialization
 	void Start () {
 	
@@ -16,6 +18,12 @@ public class EnddingTrigger : MonoBehaviour {
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.tag == "Player")
-            Application.LoadLevel(1);
+        {
+            Debug.Log("Level Endded");
+            if (nextLevel >= 0)
+                Application.LoadLevel(nextLevel);
+            else
+                GameController.Instance.OnGameOver(true);
+        }
     }
 }
