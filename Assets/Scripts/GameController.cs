@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class GameController : MonoBehaviour 
 {
@@ -22,7 +23,10 @@ public class GameController : MonoBehaviour
 
     Plane worldPlane;
 
-    public GameObject[] targets;
+    public List<Target> Targets
+    {
+        get { return Target.instances; }
+    }
     SecondCameraController secondCameraController;
     Texture2D shutterTexture;
     Texture2D blackTexture;
@@ -33,6 +37,7 @@ public class GameController : MonoBehaviour
     float lastShutterTime = 0.0f;
     float shutterTime = 0.2f;
 
+    bool isGamePaused = false;
     bool isGameOver = false;
     float gameOverTime = 0.0f;
 
@@ -42,7 +47,7 @@ public class GameController : MonoBehaviour
 
         worldPlane = new Plane(-Vector3.forward, 0);
 
-        targets = GameObject.FindGameObjectsWithTag("Target");
+        //targets = GameObject.FindGameObjectsWithTag("Target");
 
         cameraTexture = new RenderTexture(1024, 1024, 24, RenderTextureFormat.ARGBFloat);
 
@@ -62,7 +67,13 @@ public class GameController : MonoBehaviour
 	// Update is called once per frame
 	void Update () 
 	{
-		characterRigidbody.transform.Translate (Vector2.right * speed * Time.deltaTime, Space.World);
+        if (Input.GetKeyDown(KeyCode.Escape))
+            TriggerPause();
+
+        if (!isGamePaused)
+        {
+            characterRigidbody.transform.Translate(Vector2.right * speed * Time.deltaTime, Space.World);
+        }
         Update2ndCamera(); 
 	}
     void OnDestroy()
@@ -108,6 +119,22 @@ public class GameController : MonoBehaviour
         }
     }
 
+    void TriggerPause()
+    {
+        isGamePaused = !isGamePaused;
+
+        if(isGamePaused)
+        {
+            foreach (Target target in Targets)
+                target.enabled = false;
+        }
+        else
+        {
+            foreach (Target target in Targets)
+                target.enabled = true;
+        }
+    }
+
     void Update2ndCamera()
     {
         Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
@@ -119,8 +146,21 @@ public class GameController : MonoBehaviour
 
             //secondCamera.backgroundColor = Color.gray;
             
-            if(Input.GetMouseButtonDown(0))
+            if(Input.GetMouseButtonDown(0) && Screen.height - Input.mousePosition.y > 30f)
             {
+                Debug.Log("Shot");
+                lastShutterTime = Time.time;
+
+                foreach (Target target in Targets)
+                {
+                    bool detected = secondCameraController.DetectBounds.Intersects(target.DetectBounds);
+                    Debug.Log("Testing " + target.gameObject.name + ", " + detected);
+                    if (detected)
+                    {
+                        Shot(target);
+                    }
+                }
+                /*
                 foreach (GameObject targetGO in targets)
                 {
                     if (GeometryUtility.TestPlanesAABB(GeometryUtility.CalculateFrustumPlanes(secondCamera), targetGO.GetComponentInChildren<Renderer>().bounds))
@@ -130,14 +170,17 @@ public class GameController : MonoBehaviour
                             Shot(target.GetComponent<Target>());
                     }
                 }
+                 * */
+
+                secondCameraController.CurrentMode = SecondCameraController.CameraMode.None;
+                characterController.Shot();
             }
         }
     }
 
     void Shot(Target target)
     {
-        Debug.Log("Shot");
-        lastShutterTime = Time.time;
+        
         switch(secondCameraController.CurrentMode)
         {
             case SecondCameraController.CameraMode.Filter1:
@@ -182,9 +225,20 @@ public class GameController : MonoBehaviour
 
                 }
                 break;
+            case SecondCameraController.CameraMode.ShutterFast:
+                if (target.OnFastCaptured())
+                {
+
+                }
+                break;
+            case SecondCameraController.CameraMode.ShutterSlow:
+                if (target.OnSlowCaptured())
+                {
+
+                }
+                break;
         }
-        secondCameraController.CurrentMode = SecondCameraController.CameraMode.None;
-        characterController.Shot();
+        
     }
 
     void OnGameOver()

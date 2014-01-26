@@ -1,5 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+
 
 public class Target : MonoBehaviour 
 {
@@ -8,6 +10,20 @@ public class Target : MonoBehaviour
         Normal,
         ScaledUp,
         ScaledDown
+    }
+    public Bounds DetectBounds
+    {
+        get
+        {
+            Renderer renderer = GetComponentInChildren<Renderer>();
+            if (renderer)
+            {
+                Bounds origin = renderer.bounds;
+                return new Bounds(new Vector3(origin.center.x, origin.center.y, 0), origin.size);
+            }
+            else
+                return new Bounds();
+        }
     }
 
     public int correctFilterId = -1;
@@ -20,21 +36,30 @@ public class Target : MonoBehaviour
     Vector3 normalScale;
 
     public ScaleState scaleState = ScaleState.Normal;
+    public static List<Target> instances = new List<Target>();
 
     protected void Start()
     {
         normalScale = transform.localScale;
+
+        instances.Add(this);
     }
 
+    protected void OnDestroy()
+    {
+        instances.Remove(this);
+    }
+    protected void OnDrawGizmos()
+    {
+        Renderer renderer = GetComponentInChildren<Renderer>();
+        if (renderer)
+        {
+            Gizmos.color = Color.white;
+            Gizmos.DrawWireCube(DetectBounds.center, DetectBounds.size);
+        }
+    }
     void OnCollisionEnter2D(Collision2D collision)
     {
-        Debug.Log("OnCollisionEnter2D");
-        if (collision.gameObject.tag == "Colored Background 0")
-            correctFilterId = 0;
-        if (collision.gameObject.tag == "Colored Background 1")
-            correctFilterId = 1;
-        if (collision.gameObject.tag == "Colored Background 2")
-            correctFilterId = 2;
     }
     void OnTriggerExit2D(Collider2D other)
     {
