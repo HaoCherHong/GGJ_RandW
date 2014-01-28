@@ -73,6 +73,8 @@ public class GameController : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Escape))
             TriggerPause();
 
+        Update2ndCamera(); 
+
         if (!isGamePaused)
         {
             characterRigidbody.transform.Translate(Vector2.right * speed * Time.deltaTime, Space.World);
@@ -83,8 +85,13 @@ public class GameController : MonoBehaviour
                 else
                     OnGameOver(true);
             }
+
+            if (Input.GetMouseButtonDown(0) && Screen.height - Input.mousePosition.y > 30f)
+            {
+                TryShot();
+            }
         }
-        Update2ndCamera(); 
+        
 	}
     void OnDestroy()
     {
@@ -159,42 +166,44 @@ public class GameController : MonoBehaviour
 
             //secondCamera.backgroundColor = Color.gray;
             
-            if(Input.GetMouseButtonDown(0) && Screen.height - Input.mousePosition.y > 30f)
-            {
-                Debug.Log("Shot");
-                lastShutterTime = Time.time;
-
-                foreach (Target target in Targets)
-                {
-                    bool detected = secondCameraController.DetectBounds.Intersects(target.DetectBounds);
-                    Debug.Log("Testing " + target.gameObject.name + ", " + detected);
-                    if (detected)
-                    {
-                        Shot(target);
-                    }
-                }
-                /*
-                foreach (GameObject targetGO in targets)
-                {
-                    if (GeometryUtility.TestPlanesAABB(GeometryUtility.CalculateFrustumPlanes(secondCamera), targetGO.GetComponentInChildren<Renderer>().bounds))
-                    {
-                        Target target = targetGO.GetComponent<Target>();
-                        if (target)
-                            Shot(target.GetComponent<Target>());
-                    }
-                }
-                 * */
-
-                secondCameraController.CurrentMode = SecondCameraController.CameraMode.None;
-                characterController.Shot();
-            }
+            
         }
     }
 
-    void Shot(Target target)
+    void TryShot()
     {
-        
-        switch(secondCameraController.CurrentMode)
+        Debug.Log("Shot");
+        lastShutterTime = Time.time;
+
+        foreach (Target target in Targets)
+        {
+            bool detected = secondCameraController.DetectBounds.Intersects(target.DetectBounds);
+            if (detected)
+            {
+                Debug.Log("Testing " + target.gameObject.name + ", " + detected);
+                SubmitEffect(target, secondCameraController.CurrentMode);
+            }
+        }
+        /*
+        foreach (GameObject targetGO in targets)
+        {
+            if (GeometryUtility.TestPlanesAABB(GeometryUtility.CalculateFrustumPlanes(secondCamera), targetGO.GetComponentInChildren<Renderer>().bounds))
+            {
+                Target target = targetGO.GetComponent<Target>();
+                if (target)
+                    Shot(target.GetComponent<Target>());
+            }
+        }
+        */
+
+        secondCameraController.CurrentMode = SecondCameraController.CameraMode.None;
+        characterController.Shot();
+    }
+
+    void SubmitEffect(Target target, SecondCameraController.CameraMode mode)
+    {
+
+        switch (mode)
         {
             case SecondCameraController.CameraMode.Filter1:
                 if(target.OnFiltered(0))
