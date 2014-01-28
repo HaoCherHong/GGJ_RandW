@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class GameCharacterController : MonoBehaviour
+public class GameCharacterController : Target
 {
     public enum CharacterState
     {
@@ -24,7 +24,7 @@ public class GameCharacterController : MonoBehaviour
 
 	// Use this for initialization
 	void Start () {
-	
+        base.Start();
 	}
 	
 	// Update is called once per frame
@@ -59,30 +59,17 @@ public class GameCharacterController : MonoBehaviour
             }
         }
     }
-    /*
-	void Update () 
+
+    public override bool OnFiltered(Filter filter)
     {
-        if (Time.time <= lastShotTime + 1.0f)
-        {
-            spriteRenderer.sprite = shuttingSprite;
-        }
-        else
-        {
-            switch(currentState)
-            {
-                case CharacterState.Normal:
-                    spriteRenderer.sprite = normalSprite;
-                    break;
-                case CharacterState.ScaleUp:
-                    spriteRenderer.sprite = scaleUpSprite;
-                    break;
-                case CharacterState.ScaleDown:
-                    spriteRenderer.sprite = scaleDownSprite;
-                    break;
-            }
-        }
-	}
-    */
+        return false;
+    }
+
+    public override bool OnMirrored()
+    {
+        return false;
+    }
+
     void OnTriggerEnter2D(Collider2D other)
     {
         Target touchedTarget = other.GetComponent<Target>();
