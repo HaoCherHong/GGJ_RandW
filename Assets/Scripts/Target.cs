@@ -15,14 +15,12 @@ public class Target : MonoBehaviour
     {
         get
         {
-            Renderer renderer = GetComponentInChildren<Renderer>();
-            if (renderer)
-            {
-                Bounds origin = renderer.bounds;
-                return new Bounds(new Vector3(origin.center.x, origin.center.y, 0), origin.size);
-            }
-            else
-                return new Bounds();
+            Bounds result = new Bounds(transform.position, Vector3.zero);
+            Renderer[] renderers = GetComponentsInChildren<Renderer>();
+            foreach(Renderer renderer in renderers)
+                result.Encapsulate(renderer.bounds);
+            result.center = new Vector3(result.center.x, result.center.y, 0.0f);
+            return result;
         }
     }
 
