@@ -206,19 +206,19 @@ public class GameController : MonoBehaviour
         switch (mode)
         {
             case SecondCameraController.CameraMode.Filter1:
-                if(target.OnFiltered(0))
+                if(target.OnFiltered(Filter.Red))
                 {
 
                 }
                 break;
             case SecondCameraController.CameraMode.Filter2:
-                if (target.OnFiltered(1))
+                if (target.OnFiltered(Filter.Green))
                 {
 
                 }
                 break;
             case SecondCameraController.CameraMode.Filter3:
-                if (target.OnFiltered(2))
+                if (target.OnFiltered(Filter.Blue))
                 {
 
                 }

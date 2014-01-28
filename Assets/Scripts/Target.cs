@@ -49,12 +49,8 @@ public class Target : MonoBehaviour
     }
     protected void OnDrawGizmos()
     {
-        Renderer renderer = GetComponentInChildren<Renderer>();
-        if (renderer)
-        {
-            Gizmos.color = Color.white;
-            Gizmos.DrawWireCube(DetectBounds.center, DetectBounds.size);
-        }
+        Gizmos.color = Color.white;
+        Gizmos.DrawWireCube(DetectBounds.center, DetectBounds.size);
     }
     void OnCollisionEnter2D(Collision2D collision)
     {
@@ -65,16 +61,30 @@ public class Target : MonoBehaviour
             correctFilterId = -1;
     }
 
-    public virtual bool OnFiltered(int filterId)
+    public virtual bool OnFiltered(Filter filter)
     {
         Debug.Log("On Filtererd");
-        bool succeeded = filterId == correctFilterId;
-        if (succeeded)
+
+        bool result = false;
+        var filterAreas = FilterArea.Instances;
+        foreach(FilterArea filterArea in filterAreas)
+        {
+            if(filterArea.DetectBounds.Intersects(DetectBounds))
+            {
+                if((filterArea.passFilters & filter) != Filter.None)
+                {
+                    result = true;
+                }
+            }
+        }
+
+        if(result)
         {
             isHarmful = false;
             renderer.enabled = false;
         }
-        return succeeded;
+
+        return result;
     }
     public virtual bool OnBlured()
     {
