@@ -6,13 +6,11 @@ public class GameController : MonoBehaviour
 {
     public static GameController Instance { get { return instance; } }
     static GameController instance;
-    
-
+    public LensesMenu lensesMenu;
     public Camera secondCamera;
     public GameCharacterController characterController;
 	public Rigidbody2D characterRigidbody;
 	public float speed = 1.0f;
-    public RenderTexture cameraTexture;
     public Renderer secondCameraRenderer;
     public float levelEnd = 1000f;
     public int nextLevel = 1;
@@ -50,14 +48,7 @@ public class GameController : MonoBehaviour
 
         worldPlane = new Plane(-Vector3.forward, 0);
 
-        //targets = GameObject.FindGameObjectsWithTag("Target");
-
-        cameraTexture = new RenderTexture(1024, 1024, 24, RenderTextureFormat.ARGBFloat);
-
-        secondCamera.targetTexture = cameraTexture;
         secondCameraController = secondCamera.GetComponent<SecondCameraController>();
-
-        secondCameraRenderer.material.mainTexture = cameraTexture;
 
         shutterTexture = new Texture2D(1, 1);
         blackTexture = new Texture2D(1, 1);
@@ -71,13 +62,14 @@ public class GameController : MonoBehaviour
 	void Update () 
 	{
         if (Input.GetKeyDown(KeyCode.Escape))
-            TriggerPause();
+            TogglePause();
 
         Update2ndCamera(); 
 
         if (!isGamePaused)
         {
             characterRigidbody.transform.Translate(Vector2.right * speed * Time.deltaTime, Space.World);
+        }
             if (characterRigidbody.transform.position.x >= levelEnd)
             {
                 if (nextLevel >= 0)
@@ -90,12 +82,22 @@ public class GameController : MonoBehaviour
             {
                 TryShot();
             }
+        //Manage Lenses Menu
+        if(Input.GetMouseButtonDown(1))
+        {
+            isGamePaused = true;
+            //Open Lenses Menu
+            lensesMenu.Open();
         }
-        
+        if(Input.GetMouseButtonUp(1))
+        {
+            isGamePaused = false;
+            lensesMenu.Close();
+        }
 	}
     void OnDestroy()
     {
-        Destroy(cameraTexture);
+
     }
 
     
@@ -139,10 +141,11 @@ public class GameController : MonoBehaviour
         }
     }
 
-    void TriggerPause()
+    void TogglePause()
     {
         isGamePaused = !isGamePaused;
-
+        Debug.Log("Toggled Pause");
+        /*
         if(isGamePaused)
         {
             foreach (Target target in Targets)
@@ -152,7 +155,7 @@ public class GameController : MonoBehaviour
         {
             foreach (Target target in Targets)
                 target.enabled = true;
-        }
+        }*/
     }
 
     void Update2ndCamera()
@@ -177,7 +180,8 @@ public class GameController : MonoBehaviour
 
         foreach (Target target in Targets)
         {
-            bool detected = secondCameraController.DetectBounds.Intersects(target.DetectBounds);
+            //bool detected = secondCameraController.DetectBounds.Intersects(target.DetectBounds);
+            bool detected = DetectionCommon.ContainmentTest(secondCameraController.DetectBounds, target.DetectBounds);
             if (detected)
             {
                 Debug.Log("Testing " + target.gameObject.name + ", " + detected);
@@ -278,9 +282,15 @@ public class GameController : MonoBehaviour
         }
     }
 
+    public void SetCameraMode(SecondCameraController.CameraMode mode)
+    {
+        secondCameraController.CurrentMode = mode;
+    }
+
     public static void OnPlayerHarmed()
     {
         Debug.Log("Player Harmed");
         Instance.OnGameOver();
     }
+    
 }
