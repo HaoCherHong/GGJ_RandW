@@ -15,6 +15,9 @@ public class Target : MonoBehaviour
     {
         get
         {
+            if (setDetectBoundsManually)
+                return new Bounds(new Vector3(transform.position.x, transform.position.y, 0f), new Vector3(manualDetectBoundsSize.x, manualDetectBoundsSize.y, 0));
+
             Bounds result = new Bounds(transform.position, Vector3.zero);
             Renderer[] renderers = GetComponentsInChildren<Renderer>();
             foreach(Renderer renderer in renderers)
@@ -24,13 +27,16 @@ public class Target : MonoBehaviour
         }
     }
 
-    public int correctFilterId = -1;
+    
     public bool isScalable = true;
     public bool isHarmful = true;
     public bool isMirrorable = true;
+    public bool setDetectBoundsManually = false;
 
-    public Vector3 upScale = new Vector3(2f,2f,2f);
-    public Vector3 downScale = new Vector3(0.5f, 0.5f, 0.5f);
+    public Vector3 upScale = new Vector3(1.5f,1.5f,1.5f);
+    public Vector3 downScale = new Vector3(0.75f, 0.75f, 0.75f);
+    public Vector2 manualDetectBoundsSize = Vector2.one;
+
     Vector3 normalScale;
 
     public ScaleState scaleState = ScaleState.Normal;
@@ -52,14 +58,6 @@ public class Target : MonoBehaviour
         Gizmos.color = Color.white;
         Gizmos.DrawWireCube(DetectBounds.center, DetectBounds.size);
     }
-    void OnCollisionEnter2D(Collision2D collision)
-    {
-    }
-    void OnTriggerExit2D(Collider2D other)
-    {
-        if (other.gameObject.tag.Contains("Colored Background"))
-            correctFilterId = -1;
-    }
 
     public virtual bool OnFiltered(Filter filter)
     {
@@ -69,7 +67,8 @@ public class Target : MonoBehaviour
         var filterAreas = FilterArea.Instances;
         foreach(FilterArea filterArea in filterAreas)
         {
-            if(filterArea.DetectBounds.Intersects(DetectBounds))
+            //if(filterArea.DetectBounds.Intersects(DetectBounds))
+            if(DetectionCommon.ContainmentTest(filterArea.DetectBounds, DetectBounds))
             {
                 if((filterArea.passFilters & filter) != Filter.None)
                 {
