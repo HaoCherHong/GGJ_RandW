@@ -16,7 +16,7 @@ public class Target : MonoBehaviour
         get
         {
             if (setDetectBoundsManually)
-                return new Bounds(new Vector3(transform.position.x, transform.position.y, 0f), new Vector3(manualDetectBoundsSize.x, manualDetectBoundsSize.y, 0));
+                return new Bounds(new Vector3(transform.position.x + manualDetectBoundsOffset.x, transform.position.y + manualDetectBoundsOffset.y, 0f), new Vector3(manualDetectBoundsSize.x, manualDetectBoundsSize.y, 0));
 
             Bounds result = new Bounds(transform.position, Vector3.zero);
             Renderer[] renderers = GetComponentsInChildren<Renderer>();
@@ -36,6 +36,7 @@ public class Target : MonoBehaviour
     public Vector3 upScale = new Vector3(1.5f,1.5f,1.5f);
     public Vector3 downScale = new Vector3(0.75f, 0.75f, 0.75f);
     public Vector2 manualDetectBoundsSize = Vector2.one;
+    public Vector2 manualDetectBoundsOffset = Vector2.zero;
 
     Vector3 normalScale;
 
@@ -59,10 +60,8 @@ public class Target : MonoBehaviour
         Gizmos.DrawWireCube(DetectBounds.center, DetectBounds.size);
     }
 
-    public virtual bool OnFiltered(Filter filter)
+    public virtual bool OnFiltered(bool submitEffects, Filter filter)
     {
-        Debug.Log("On Filtererd");
-
         bool result = false;
         var filterAreas = FilterArea.Instances;
         foreach(FilterArea filterArea in filterAreas)
@@ -77,7 +76,7 @@ public class Target : MonoBehaviour
             }
         }
 
-        if(result)
+        if(result && submitEffects)
         {
             isHarmful = false;
             renderer.enabled = false;
@@ -85,75 +84,101 @@ public class Target : MonoBehaviour
 
         return result;
     }
-    public virtual bool OnBlured()
+    public virtual bool OnBlured(bool submitEffects)
     {
         return false;
     }
-    public virtual bool OnFastCaptured()
+    public virtual bool OnFastCaptured(bool submitEffects)
+    {
+        bool result= false;
+        if(animation)
+        {
+            if(animation.isPlaying)
+            {
+                result = true;
+                if (submitEffects)
+                    animation.Stop();
+            }
+        }
+        return result;
+    }
+    public virtual bool OnSlowCaptured(bool submitEffects)
     {
         return false;
     }
-    public virtual bool OnSlowCaptured()
-    {
-        return false;
-    }
-    public virtual bool OnMirrored()
+    public virtual bool OnMirrored(bool submitEffects)
     {
         
         if (isMirrorable)
         {
-            Vector3 newScale = transform.localScale;
-            newScale.x *= -1;
-            transform.localScale = newScale;
-            Debug.Log("On Mirrored");
+            if (submitEffects)
+            {
+                Vector3 newScale = transform.localScale;
+                newScale.x *= -1;
+                transform.localScale = newScale;
+            }
             return true;
         }
         else
             return false;
     }
 
-    public virtual bool OnScaledUp()
+    public virtual bool OnScaledUp(bool submitEffects)
     {
         if (isScalable)
         {
+            bool result = false;
             switch(scaleState)
             {
                 case ScaleState.Normal:
-                    transform.localScale = upScale;
-                    scaleState = ScaleState.ScaledUp;
+                    if(submitEffects)
+                    {
+                        transform.localScale = upScale;
+                        scaleState = ScaleState.ScaledUp;
+                    }
+                    result = true;
                     break;
-                case ScaleState.ScaledUp:
-                    return false;
+
                 case ScaleState.ScaledDown:
-                    transform.localScale = normalScale;
-                    scaleState = ScaleState.Normal;
+                    if (submitEffects)
+                    {
+                        transform.localScale = normalScale;
+                        scaleState = ScaleState.Normal;
+                    }
+                    result = true;
                     break;
             }
-            return true;
+            return result;
         }
         else
             return false;
     }
 
-    public virtual bool OnScaledDown()
+    public virtual bool OnScaledDown(bool submitEffects)
     {
-        Debug.Log("Scaled Down");
         if (isScalable)
         {
+            bool result = false;
             switch (scaleState)
             {
                 case ScaleState.Normal:
-                    transform.localScale = downScale;
-                    scaleState = ScaleState.ScaledDown;
+                    if (submitEffects)
+                    {
+                        transform.localScale = downScale;
+                        scaleState = ScaleState.ScaledDown;
+                    }
+                    result = true;
                     break;
                 case ScaleState.ScaledUp:
-                    transform.localScale = normalScale;
-                    scaleState = ScaleState.Normal;
+                    if (submitEffects)
+                    {
+                        transform.localScale = normalScale;
+                        scaleState = ScaleState.Normal;
+                    }
+                    result = true;
                     break;
-                case ScaleState.ScaledDown:
-                    return false;
             }
-            return true;
+            return result;
         }
         else
             return false;

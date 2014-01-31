@@ -20,10 +20,13 @@ public class ImpactingTarget : Target {
     }
 
 
-    public override bool OnMirrored()
+    public override bool OnMirrored(bool submitEffects)
     {
-        base.OnMirrored();
-        translation.x *= -1;
+        base.OnMirrored(submitEffects);
+        if (submitEffects)
+        {
+            translation.x *= -1;
+        }
         return true;
     }
 }

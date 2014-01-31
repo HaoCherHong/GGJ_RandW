@@ -3,11 +3,14 @@ using System.Collections;
 
 public class AnimatedTarget : Target 
 {
-    public override bool OnMirrored()
+    public override bool OnMirrored(bool submitEffects)
     {
-        base.OnMirrored();
+        base.OnMirrored(submitEffects);
 
-        animation[animation.clip.name].speed *= -1;
+        if (submitEffects)
+        {
+            animation[animation.clip.name].speed *= -1;
+        }
 
         return true;
     }

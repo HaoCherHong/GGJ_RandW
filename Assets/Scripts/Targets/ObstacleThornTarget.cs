@@ -4,10 +4,13 @@ using System.Collections;
 public class ObstacleThornTarget : Target
 {
 
-    public override bool OnMirrored()
+    public override bool OnMirrored(bool submitEffects)
     {
-        base.OnMirrored();
-        isHarmful = (transform.localScale.x > 0) || (scaleState != ScaleState.ScaledDown);
+        base.OnMirrored(submitEffects);
+        if (submitEffects)
+        {
+            isHarmful = (transform.localScale.x > 0) || (scaleState != ScaleState.ScaledDown);
+        }
         return true;
     }
 }
