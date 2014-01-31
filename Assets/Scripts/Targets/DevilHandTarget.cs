@@ -14,13 +14,15 @@ public class DevilHandTarget : Target {
         blured.SetActive(false);
     }
 
-    public override bool OnBlured()
+    public override bool OnBlured(bool submitEffects)
     {
-        unBlured.SetActive(false);
-        blured.SetActive(true);
+        if (submitEffects)
+        {
+            unBlured.SetActive(false);
+            blured.SetActive(true);
 
-        isHarmful = false;
-
+            isHarmful = false;
+        }
         return true;
     }
 

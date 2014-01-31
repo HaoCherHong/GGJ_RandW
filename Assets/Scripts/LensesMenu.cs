@@ -6,6 +6,12 @@ public class LensesMenu : MonoBehaviour
     public GameController gameController;
     public LensesMenuItem[] subItems;
 
+    public AudioClip menuOpenedClip;
+    public AudioClip menuClosedClip;
+    public AudioClip menuItemSelectedClip;
+
+    public bool IsOpened { get; private set; }
+
 	// Use this for initialization
 	void Start () {
 	
@@ -28,12 +34,20 @@ public class LensesMenu : MonoBehaviour
 
         foreach (LensesMenuItem item in subItems)
             item.OnMenuOpened();
+
+        audio.PlayOneShot(menuOpenedClip);
+
+        IsOpened = true;
     }
 
     public void Close()
     {
         foreach (LensesMenuItem item in subItems)
             item.OnMenuClosed();
+
+        audio.PlayOneShot(menuClosedClip);
+
+        IsOpened = false;
     }
 
     public void OnParentSelected(LensesMenuItem selectedItem)
@@ -41,10 +55,14 @@ public class LensesMenu : MonoBehaviour
         foreach (LensesMenuItem item in subItems)
             if (item != selectedItem)
                 item.visible = false;
+
+        audio.PlayOneShot(menuItemSelectedClip);
     }
 
     public void OnModeSelected(SecondCameraController.CameraMode mode)
     {
         gameController.SetCameraMode(mode);
+
+        audio.PlayOneShot(menuItemSelectedClip);
     }
 }

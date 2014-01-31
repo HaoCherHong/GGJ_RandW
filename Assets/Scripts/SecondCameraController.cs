@@ -5,9 +5,9 @@ public class SecondCameraController : MonoBehaviour {
     public enum CameraMode
     {
         None,
-        Filter1,
-        Filter2,
-        Filter3,
+        FilterRed,
+        FilterGreen,
+        FilterBlue,
         Blur,
         ScaleUp,
         ScaleDown,
@@ -33,6 +33,7 @@ public class SecondCameraController : MonoBehaviour {
         }
     }
 
+    public SpriteRenderer focusSpriteRenderer;
     public float fishEyeStrength = 0.5f;
     public float sizeScale = 2.0f;
     public GameCharacterController characterController;
@@ -76,22 +77,12 @@ public class SecondCameraController : MonoBehaviour {
 	// Update is called once per frame
 	void Update () 
     {
-        targetRenderer.enabled = !Input.GetMouseButton(1);
+        //targetRenderer.enabled = !Input.GetMouseButton(1);
 	}
 
     void OnGUI()
     {
-        return;
-        Bounds detectBounds = DetectBounds;
-        Vector3 bottomLeft = Camera.main.WorldToScreenPoint(detectBounds.center - detectBounds.size / 2);
-        Vector3 topRight = Camera.main.WorldToScreenPoint(detectBounds.center + detectBounds.size / 2);
-        Rect drawingRect = new Rect(bottomLeft.x,
-            Screen.height - topRight.y,
-            topRight.x - bottomLeft.x,
-            topRight.y - bottomLeft.y);
-        GUI.DrawTexture(drawingRect, cameraTexture, ScaleMode.ScaleAndCrop);
     }
-
     void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
@@ -100,6 +91,8 @@ public class SecondCameraController : MonoBehaviour {
 
     void OnModeChanged()
     {
+        targetRenderer.enabled = CurrentMode != CameraMode.None;
+
         if (CurrentMode == CameraMode.Blur)
         {
             GetComponent<Blur>().enabled = true;
@@ -108,14 +101,14 @@ public class SecondCameraController : MonoBehaviour {
         else
             GetComponent<Blur>().enabled = false;
 
-        bool filterMode = CurrentMode >= CameraMode.Filter1 && CurrentMode <= CameraMode.Filter3;
+        bool filterMode = CurrentMode >= CameraMode.FilterRed && CurrentMode <= CameraMode.FilterBlue;
         ColorCorrectionCurves curves = GetComponent<ColorCorrectionCurves>();
         if (filterMode)
         {
             
-            curves.redChannel = CurrentMode == CameraMode.Filter1 ? normalCurve : zeroCurve;
-            curves.greenChannel = CurrentMode == CameraMode.Filter2 ? normalCurve : zeroCurve;
-            curves.blueChannel = CurrentMode == CameraMode.Filter3 ? normalCurve : zeroCurve;
+            curves.redChannel = CurrentMode == CameraMode.FilterRed ? normalCurve : zeroCurve;
+            curves.greenChannel = CurrentMode == CameraMode.FilterGreen ? normalCurve : zeroCurve;
+            curves.blueChannel = CurrentMode == CameraMode.FilterBlue ? normalCurve : zeroCurve;
             curves.UpdateParameters();
 
             characterController.SetState(GameCharacterController.CharacterState.Normal);
@@ -155,5 +148,12 @@ public class SecondCameraController : MonoBehaviour {
         
 
         GetComponent<MotionBlur>().enabled = CurrentMode == CameraMode.ShutterSlow;
+    }
+
+    public void SetFocus(bool focus)
+    {
+        Color newColor = focus ? Color.green : Color.white;
+        newColor.a = 0.75f;
+        focusSpriteRenderer.color = newColor;
     }
 }

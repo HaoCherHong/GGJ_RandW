@@ -19,6 +19,11 @@ public class GameController : MonoBehaviour
     public GUISkin emptyGUISkin;
     public Texture2D gameOverTexture;
     public Texture2D restartButtonTexture;
+
+    //SFX
+    public AudioClip focusClip;
+    public AudioClip shutterClip;
+
     Rect screenRect;
 
     Plane worldPlane;
@@ -41,6 +46,9 @@ public class GameController : MonoBehaviour
     bool isGameOver = false;
     bool returnToStart = false;
     float gameOverTime = 0.0f;
+    float lastLeftMouseDown = 0.0f;
+
+    bool isLastFrameFocused = false;
 
 	// Use this for initialization
 	void Start () {
@@ -70,29 +78,52 @@ public class GameController : MonoBehaviour
         {
             characterRigidbody.transform.Translate(Vector2.right * speed * Time.deltaTime, Space.World);
         }
-            if (characterRigidbody.transform.position.x >= levelEnd)
-            {
-                if (nextLevel >= 0)
-                    Application.LoadLevel(nextLevel);
-                else
-                    OnGameOver(true);
-            }
-
-            if (Input.GetMouseButtonDown(0) && Screen.height - Input.mousePosition.y > 30f)
-            {
-                TryShot();
-            }
-        //Manage Lenses Menu
-        if(Input.GetMouseButtonDown(1))
+        if (characterRigidbody.transform.position.x >= levelEnd)
         {
-            isGamePaused = true;
-            //Open Lenses Menu
-            lensesMenu.Open();
+            if (nextLevel >= 0)
+                Application.LoadLevel(nextLevel);
+            else
+                OnGameOver(true);
         }
-        if(Input.GetMouseButtonUp(1))
+
+        bool focus = false;
+        foreach (Target target in Targets)
         {
-            isGamePaused = false;
-            lensesMenu.Close();
+            if(DetectionCommon.ContainmentTest(secondCameraController.DetectBounds, target.DetectBounds))
+            {
+                if (TestEffect(target, secondCameraController.CurrentMode))
+                {
+                    focus = true;
+                    break;
+                }
+            }
+        }
+        secondCameraController.SetFocus(focus);
+
+        if (!isLastFrameFocused && focus)
+            audio.PlayOneShot(focusClip);
+
+        isLastFrameFocused = focus;
+
+        if (Input.GetMouseButtonDown(0))
+            lastLeftMouseDown = Time.time;
+        if (Input.GetMouseButtonUp(0) && Time.time - lastLeftMouseDown <= 0.25f)
+        {
+            TryShot();
+
+            audio.PlayOneShot(shutterClip);
+        }
+        //Manage Lenses Menu
+        if (Input.GetMouseButton(0) && Time.time - lastLeftMouseDown > 0.1f)
+        {
+            //Open Lenses Menu
+            if(!lensesMenu.IsOpened)
+                lensesMenu.Open();
+        }
+        if(Input.GetMouseButtonUp(0))
+        {
+            if(lensesMenu.IsOpened)
+                lensesMenu.Close();
         }
 	}
     void OnDestroy()
@@ -209,62 +240,91 @@ public class GameController : MonoBehaviour
 
         switch (mode)
         {
-            case SecondCameraController.CameraMode.Filter1:
-                if(target.OnFiltered(Filter.Red))
+            case SecondCameraController.CameraMode.FilterRed:
+                if(target.OnFiltered(true, Filter.Red))
                 {
 
                 }
                 break;
-            case SecondCameraController.CameraMode.Filter2:
-                if (target.OnFiltered(Filter.Green))
+            case SecondCameraController.CameraMode.FilterGreen:
+                if (target.OnFiltered(true, Filter.Green))
                 {
 
                 }
                 break;
-            case SecondCameraController.CameraMode.Filter3:
-                if (target.OnFiltered(Filter.Blue))
+            case SecondCameraController.CameraMode.FilterBlue:
+                if (target.OnFiltered(true, Filter.Blue))
                 {
 
                 }
                 break;
             case SecondCameraController.CameraMode.ScaleUp:
-                if(target.OnScaledUp())
+                if (target.OnScaledUp(true))
                 {
 
                 }
                 break;
             case SecondCameraController.CameraMode.ScaleDown:
-                if (target.OnScaledDown())
+                if (target.OnScaledDown(true))
                 {
 
                 }
                 break;
             case SecondCameraController.CameraMode.Blur:
-                if(target.OnBlured())
+                if (target.OnBlured(true))
                 {
 
                 }
                 break;
             case SecondCameraController.CameraMode.Mirror:
-                if(target.OnMirrored())
+                if (target.OnMirrored(true))
                 {
 
                 }
                 break;
             case SecondCameraController.CameraMode.ShutterFast:
-                if (target.OnFastCaptured())
+                if (target.OnFastCaptured(true))
                 {
 
                 }
                 break;
             case SecondCameraController.CameraMode.ShutterSlow:
-                if (target.OnSlowCaptured())
+                if (target.OnSlowCaptured(true))
                 {
 
                 }
                 break;
         }
         
+    }
+
+    bool TestEffect(Target target, SecondCameraController.CameraMode mode)
+    {
+
+        switch (mode)
+        {
+            case SecondCameraController.CameraMode.FilterRed:
+                return target.OnFiltered(false, Filter.Red);
+            case SecondCameraController.CameraMode.FilterGreen:
+                return target.OnFiltered(false, Filter.Green);
+            case SecondCameraController.CameraMode.FilterBlue:
+                return target.OnFiltered(false, Filter.Blue);
+            case SecondCameraController.CameraMode.ScaleUp:
+                return target.OnScaledUp(false);
+            case SecondCameraController.CameraMode.ScaleDown:
+                return target.OnScaledDown(false);
+            case SecondCameraController.CameraMode.Blur:
+                return target.OnBlured(false);
+            case SecondCameraController.CameraMode.Mirror:
+                return target.OnMirrored(false);
+            case SecondCameraController.CameraMode.ShutterFast:
+                return target.OnFastCaptured(false);
+            case SecondCameraController.CameraMode.ShutterSlow:
+                return target.OnSlowCaptured(false);
+            default:
+                return false;
+        }
+
     }
 
     public void OnGameOver()

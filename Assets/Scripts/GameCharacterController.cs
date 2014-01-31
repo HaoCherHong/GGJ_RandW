@@ -60,12 +60,12 @@ public class GameCharacterController : Target
         }
     }
 
-    public override bool OnFiltered(Filter filter)
+    public override bool OnFiltered(bool submitEffects, Filter filter)
     {
         return false;
     }
 
-    public override bool OnMirrored()
+    public override bool OnMirrored(bool submitEffects)
     {
         return false;
     }
