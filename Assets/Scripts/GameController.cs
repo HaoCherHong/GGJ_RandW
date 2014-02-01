@@ -40,7 +40,7 @@ public class GameController : MonoBehaviour
     bool isShotAvailable = false;
 
     float lastShutterTime = 0.0f;
-    float shutterTime = 0.2f;
+    float shutterTime = 0.1f;
 
     bool isGamePaused = false;
     bool isGameOver = false;
@@ -89,6 +89,8 @@ public class GameController : MonoBehaviour
         bool focus = false;
         foreach (Target target in Targets)
         {
+            if (!target.enabled)
+                continue;
             if(DetectionCommon.ContainmentTest(secondCameraController.DetectBounds, target.DetectBounds))
             {
                 if (TestEffect(target, secondCameraController.CurrentMode))
@@ -144,10 +146,11 @@ public class GameController : MonoBehaviour
                     secondCameraController.CurrentMode = mode;
             GUILayout.EndHorizontal();
 
-            //Draw Shutter Flash
-            if (Time.time <= lastShutterTime + shutterTime)
+            //Draw Shutter
+            if (Time.time <= lastShutterTime + shutterTime + 0.2f)
             {
-                shutterTexture.SetPixel(0, 0, new Color(1, 1, 1, Mathf.Lerp(0.75f, 0f, Mathf.InverseLerp(lastShutterTime, lastShutterTime + shutterTime, Time.time))));
+                float lerp = Mathf.InverseLerp(lastShutterTime + shutterTime, lastShutterTime + shutterTime + 0.2f, Time.time);
+                shutterTexture.SetPixel(0, 0, new Color(0, 0, 0, Mathf.Lerp(1.0f, 0f, lerp)));
                 shutterTexture.Apply();
                 Rect screenRect = new Rect(0, 0, Screen.width, Screen.height);
                 GUI.DrawTexture(screenRect, shutterTexture);
@@ -197,10 +200,6 @@ public class GameController : MonoBehaviour
         {
             Vector3 hit = ray.GetPoint(rayDistance);
             secondCamera.transform.position = new Vector3(hit.x, hit.y, secondCamera.transform.position.z);
-
-            //secondCamera.backgroundColor = Color.gray;
-            
-            
         }
     }
 
@@ -209,8 +208,24 @@ public class GameController : MonoBehaviour
         Debug.Log("Shot");
         lastShutterTime = Time.time;
 
+        //Select shutter time
+        switch(secondCameraController.CurrentMode)
+        {
+            case SecondCameraController.CameraMode.ShutterFast:
+                shutterTime = 0.0f;
+            break;
+            case SecondCameraController.CameraMode.ShutterSlow:
+                shutterTime = 0.5f;
+            break;
+            default:
+                shutterTime = 0.1f;
+            break;
+        }
+
         foreach (Target target in Targets)
         {
+            if (!target.enabled)
+                continue;
             //bool detected = secondCameraController.DetectBounds.Intersects(target.DetectBounds);
             bool detected = DetectionCommon.ContainmentTest(secondCameraController.DetectBounds, target.DetectBounds);
             if (detected)

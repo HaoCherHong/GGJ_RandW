@@ -33,19 +33,18 @@ public class Target : MonoBehaviour
     public bool isMirrorable = true;
     public bool setDetectBoundsManually = false;
 
-    public Vector3 upScale = new Vector3(1.5f,1.5f,1.5f);
-    public Vector3 downScale = new Vector3(0.75f, 0.75f, 0.75f);
+    public float scaleFactor = 1.5f;
     public Vector2 manualDetectBoundsSize = Vector2.one;
     public Vector2 manualDetectBoundsOffset = Vector2.zero;
 
-    Vector3 normalScale;
+    Vector3 localScale;
 
     public ScaleState scaleState = ScaleState.Normal;
     public static List<Target> instances = new List<Target>();
 
     protected void Start()
     {
-        normalScale = transform.localScale;
+        localScale = transform.localScale;
 
         instances.Add(this);
     }
@@ -72,14 +71,16 @@ public class Target : MonoBehaviour
                 if((filterArea.passFilters & filter) != Filter.None)
                 {
                     result = true;
+                    if(submitEffects)
+                    {
+                        isHarmful = false;
+                        renderer.enabled = false;
+                        if (animation && animation.isPlaying)
+                            animation.Stop();
+                        enabled = false;
+                    }
                 }
             }
-        }
-
-        if(result && submitEffects)
-        {
-            isHarmful = false;
-            renderer.enabled = false;
         }
 
         return result;
@@ -133,7 +134,8 @@ public class Target : MonoBehaviour
                 case ScaleState.Normal:
                     if(submitEffects)
                     {
-                        transform.localScale = upScale;
+                        //transform.localScale = localScale * scaleFactor;
+                        transform.localScale *= scaleFactor;
                         scaleState = ScaleState.ScaledUp;
                     }
                     result = true;
@@ -142,7 +144,8 @@ public class Target : MonoBehaviour
                 case ScaleState.ScaledDown:
                     if (submitEffects)
                     {
-                        transform.localScale = normalScale;
+                        //transform.localScale = localScale;
+                        transform.localScale *= scaleFactor;
                         scaleState = ScaleState.Normal;
                     }
                     result = true;
@@ -164,7 +167,8 @@ public class Target : MonoBehaviour
                 case ScaleState.Normal:
                     if (submitEffects)
                     {
-                        transform.localScale = downScale;
+                        //transform.localScale = localScale / scaleFactor;
+                        transform.localScale /= scaleFactor;
                         scaleState = ScaleState.ScaledDown;
                     }
                     result = true;
@@ -172,7 +176,8 @@ public class Target : MonoBehaviour
                 case ScaleState.ScaledUp:
                     if (submitEffects)
                     {
-                        transform.localScale = normalScale;
+                        //transform.localScale = localScale;
+                        transform.localScale /= scaleFactor;
                         scaleState = ScaleState.Normal;
                     }
                     result = true;

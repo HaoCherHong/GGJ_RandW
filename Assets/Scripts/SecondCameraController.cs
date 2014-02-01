@@ -55,13 +55,13 @@ public class SecondCameraController : MonoBehaviour {
     {
         cameraTexture = new RenderTexture(
             512,
-            512 * Screen.height / Screen.width,
+            512/* * Screen.height / Screen.width*/,
             24, RenderTextureFormat.ARGBFloat);
         camera.targetTexture = cameraTexture;
-
+        camera.pixelRect = new Rect(0, 0, 512, 512);
         targetRenderer.material.mainTexture = cameraTexture;
-        targetRenderer.material.mainTextureScale = new Vector2((float)Screen.height / Screen.width, 1.0f);
-        targetRenderer.material.mainTextureOffset = new Vector2((float)Screen.height / Screen.width / 2, 0.0f);
+        //targetRenderer.material.mainTextureScale = new Vector2((float)Screen.height / Screen.width, 1.0f);
+        //targetRenderer.material.mainTextureOffset = new Vector2((float)Screen.height / Screen.width / 2, 0.0f);
         
        
 
