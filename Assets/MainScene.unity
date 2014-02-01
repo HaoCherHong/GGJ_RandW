@@ -2396,7 +2396,6 @@ Transform:
   - {fileID: 378247296}
   - {fileID: 1237361518}
   - {fileID: 1154435880}
-  - {fileID: 439350795}
   - {fileID: 691514174}
   - {fileID: 125125510}
   m_Father: {fileID: 0}
@@ -2410,6 +2409,7 @@ GameObject:
   - 4: {fileID: 290218308}
   - 212: {fileID: 290218311}
   - 114: {fileID: 290218310}
+  - 61: {fileID: 290218309}
   m_Layer: 0
   m_Name: Thorn
   m_TagString: Target
@@ -2430,6 +2430,17 @@ Transform:
   - {fileID: 1768643972}
   - {fileID: 1995082181}
   m_Father: {fileID: 125125510}
+--- !u!61 &290218309
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 290218307}
+  m_Enabled: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_Size: {x: 4.4000001, y: 1}
+  m_Center: {x: 0, y: 0}
 --- !u!114 &290218310
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3881,7 +3892,7 @@ Transform:
   - {fileID: 923166357}
   - {fileID: 807992888}
   - {fileID: 1768451248}
-  m_Father: {fileID: 274676374}
+  m_Father: {fileID: 1578973785}
 --- !u!81 &439350796
 AudioListener:
   m_ObjectHideFlags: 0
@@ -14639,12 +14650,13 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1578973784}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 100, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 736895432}
   - {fileID: 1161841969}
   - {fileID: 607035715}
+  - {fileID: 439350795}
   m_Father: {fileID: 274676374}
 --- !u!114 &1578973786
 MonoBehaviour:
