@@ -29,4 +29,16 @@ public class ImpactingTarget : Target {
         }
         return true;
     }
+
+    public override bool OnFastCaptured(bool submitEffects)
+    {
+        base.OnFastCaptured(submitEffects);
+
+        if(submitEffects)
+        {
+            translation = Vector3.zero;
+        }
+
+        return true;
+    }
 }
