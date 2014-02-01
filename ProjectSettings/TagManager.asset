@@ -41,7 +41,15 @@ TagManager:
   User Layer 30: 
   User Layer 31: 
   m_SortingLayers:
+  - name: Lower
+    userID: 1
+    uniqueID: 4130702309
+    locked: 0
   - name: Default
     userID: 0
     uniqueID: 0
+    locked: 0
+  - name: Higher
+    userID: 2
+    uniqueID: 1415581879
     locked: 0
