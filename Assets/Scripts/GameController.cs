@@ -139,13 +139,6 @@ public class GameController : MonoBehaviour
     {
         if (!isGameOver)
         {
-            GUILayout.BeginHorizontal();
-            System.Array modes = System.Enum.GetValues(typeof(SecondCameraController.CameraMode));
-            foreach (SecondCameraController.CameraMode mode in modes)
-                if (GUILayout.Button(System.Enum.GetName(typeof(SecondCameraController.CameraMode), mode)))
-                    secondCameraController.CurrentMode = mode;
-            GUILayout.EndHorizontal();
-
             //Draw Shutter
             if (Time.time <= lastShutterTime + shutterTime + 0.2f)
             {

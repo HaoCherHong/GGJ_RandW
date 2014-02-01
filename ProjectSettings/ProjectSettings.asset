@@ -16,8 +16,8 @@ PlayerSettings:
   cursorHotspot: {x: 0, y: 0}
   defaultScreenWidth: 1024
   defaultScreenHeight: 768
-  defaultScreenWidthWeb: 960
-  defaultScreenHeightWeb: 600
+  defaultScreenWidthWeb: 1600
+  defaultScreenHeightWeb: 900
   m_RenderingPath: 1
   m_MobileRenderingPath: 1
   m_ActiveColorSpace: 0
@@ -107,9 +107,13 @@ PlayerSettings:
   AndroidKeystoreName: 
   AndroidKeyaliasName: 
   resolutionDialogBanner: {fileID: 0}
-  m_BuildTargetIcons: []
+  m_BuildTargetIcons:
+  - m_BuildTarget: 
+    m_Icons:
+    - m_Icon: {fileID: 2800000, guid: f00dab9faeb44db4bae4584cb1b8c88f, type: 3}
+      m_Size: 128
   m_BuildTargetBatching: []
-  webPlayerTemplate: APPLICATION:Default
+  webPlayerTemplate: APPLICATION:Black Background
   m_TemplateCustomTags: {}
   wiiRegion: 1
   wiiGameCode: RABA
