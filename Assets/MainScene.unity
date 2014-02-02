@@ -2396,6 +2396,7 @@ Transform:
   - {fileID: 378247296}
   - {fileID: 1237361518}
   - {fileID: 1154435880}
+  - {fileID: 439350795}
   - {fileID: 691514174}
   - {fileID: 125125510}
   m_Father: {fileID: 0}
@@ -3892,7 +3893,7 @@ Transform:
   - {fileID: 923166357}
   - {fileID: 807992888}
   - {fileID: 1768451248}
-  m_Father: {fileID: 1578973785}
+  m_Father: {fileID: 274676374}
 --- !u!81 &439350796
 AudioListener:
   m_ObjectHideFlags: 0
@@ -9073,7 +9074,7 @@ MonoBehaviour:
   data:
     version: 1
     font: {fileID: 11400000, guid: cb3bf0ad5e92744d6856da9a7d5a3125, type: 2}
-    text: Try to make it seems invisible.
+    text: Try to make it seem invisible.
     color: {r: 1, g: 1, b: 1, a: 1}
     color2: {r: 1, g: 1, b: 1, a: 1}
     useGradient: 0
@@ -9082,7 +9083,7 @@ MonoBehaviour:
     renderLayer: 0
     scale: {x: 5.78460264, y: 5.78460312, z: 0}
     kerning: 0
-    maxChars: 31
+    maxChars: 30
     inlineStyling: 0
     formatting: 0
     wordWrapWidth: 0
@@ -14650,13 +14651,12 @@ Transform:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 1578973784}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 100, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 736895432}
   - {fileID: 1161841969}
   - {fileID: 607035715}
-  - {fileID: 439350795}
   m_Father: {fileID: 274676374}
 --- !u!114 &1578973786
 MonoBehaviour:
@@ -19472,7 +19472,7 @@ MonoBehaviour:
   data:
     version: 1
     font: {fileID: 11400000, guid: cb3bf0ad5e92744d6856da9a7d5a3125, type: 2}
-    text: Demo endded
+    text: Demo ended
     color: {r: 1, g: 1, b: 1, a: 1}
     color2: {r: 1, g: 1, b: 1, a: 1}
     useGradient: 0
@@ -19481,7 +19481,7 @@ MonoBehaviour:
     renderLayer: 0
     scale: {x: 5.78460264, y: 5.78460312, z: 0}
     kerning: 0
-    maxChars: 11
+    maxChars: 10
     inlineStyling: 0
     formatting: 0
     wordWrapWidth: 0
